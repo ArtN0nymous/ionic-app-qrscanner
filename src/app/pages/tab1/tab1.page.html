@@ -1,0 +1,12 @@
+<ion-content [fullscreen]="true" [style.--background]="scanActive?'#00000000':'#ffffff'">
+  <ion-fab slot="fixed" horizontal="center" vertical="center" class="btn-scanner" *ngIf="!scanActive">
+    <ion-fab-button (click)="startScanner()" shape="round" color="primary" horizontal="center" vertical="center">
+      <ion-icon name="barcode"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-fab slot="fixed" horizontal="center" vertical="center" class="btn-scanner" *ngIf="scanActive">
+    <ion-fab-button (click)="stopScanner()" shape="round" color="danger" horizontal="center" vertical="center">
+      <ion-icon name="stop"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
