@@ -13,21 +13,26 @@ export  class Registro{
         this.getType();
     }
     private getType(){
-        const tipo = this.text.substring(0,4);
-        console.log('TIPO',tipo);
-        switch (tipo) {
-            case 'http':
-                this.type='http';
-                this.icon='globe';
-                break;
-            case 'geo:':
-                this.type='geo';
-                this.icon='pin';
-                break;
-            default:
-                this.type='undefined'
-                this.icon='file';
-                break;
+        if(this.text.search('goo.gl/maps')!==-1){
+            this.type='gmap';
+            this.icon='map';
+        }else{
+            const tipo = this.text.substring(0,4);
+            console.log('TIPO',tipo);
+            switch (tipo) {
+                case 'http':
+                    this.type='http';
+                    this.icon='globe';
+                    break;
+                case 'geo:':
+                    this.type='geo';
+                    this.icon='pin';
+                    break;
+                default:
+                    this.type='undefined'
+                    this.icon='file';
+                    break;
+            }
         }
     }
 }

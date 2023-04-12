@@ -22,5 +22,8 @@ export class Tab2Page {
   sendEmail(){
     console.log('Send email');
   }
+  abrir(scan:any){
+    this.dataLocal.abrir(scan);
+  }
 
 }

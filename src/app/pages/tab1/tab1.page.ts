@@ -41,7 +41,7 @@ export class Tab1Page {
         this.scanActive = false;
         //this.resultado=result.content;
         this.dataLocal.guardarScaneo(result.format,result.content);
-        alert(result.content);
+        //alert(result.content);
       } else {
         alert('NO DATA FOUND!');
       }

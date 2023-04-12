@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { ToastController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage-angular';
 import { Registro } from '../models/registro.model';
+import {InAppBrowser} from '@awesome-cordova-plugins/in-app-browser'
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { Registro } from '../models/registro.model';
 export class DataLocalService {
   guardado:Registro[]=[];
   _storage:Storage|null=null;
-  constructor(private storage:Storage,private toastCtrl:ToastController) {
+  constructor(private storage:Storage,private toastCtrl:ToastController,private navCtrl:NavController) {
     this.init();
     this.cargarEscaneos();
   }
@@ -21,6 +22,8 @@ export class DataLocalService {
       console.log('GUARDADO',this.guardado);
       this.storage.set('escaneos',this.guardado);
       this.mostrarMensaje();
+      this.navCtrl.navigateForward('/tabs/tab2');
+      this.abrir(nuevoScaneo);
     }else{
       alert('Este escaneo ya existe');
     }
@@ -41,5 +44,15 @@ export class DataLocalService {
   async init(){
     const storage = await this.storage.create();
     this._storage = storage;
+  }
+  abrir(scan:Registro){
+    switch (scan.type) {
+      case 'http':
+        InAppBrowser.create(scan.text);
+        break;
+    
+      default:
+        break;
+    }
   }
 }

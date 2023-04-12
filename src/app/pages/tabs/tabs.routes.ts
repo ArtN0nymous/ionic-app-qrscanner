@@ -17,6 +17,11 @@ export const routes: Routes = [
           import('../tab2/tab2.page').then((m) => m.Tab2Page),
       },
       {
+        path: 'maps',
+        loadComponent: () => 
+          import('../maps/maps.page').then( m => m.MapsPage),
+      },
+      {
         path: '',
         redirectTo: '/tabs/tab1',
         pathMatch: 'full',
