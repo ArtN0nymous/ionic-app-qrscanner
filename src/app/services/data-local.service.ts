@@ -17,7 +17,8 @@ export class DataLocalService {
     private toastCtrl:ToastController,
     private navCtrl:NavController,
     private modalCtrl:ModalController,
-    private router:Router
+    private router:Router,
+    private file:File
   ) {
     this.init();
     this.cargarEscaneos();
@@ -91,6 +92,20 @@ export class DataLocalService {
     this.crearArchivoCSV(arrTemp.join(''));
   }
   crearArchivoCSV(text:string){
-    
+    this.file.checkFile(this.file.dataDirectory,'registros.csv')
+      .then(existe=>{
+        console.log('existe archivo',existe);
+        return this.escribirEnArchivo(text);
+      }).catch(err=>{
+        this.file.createFile(this.file.dataDirectory,'registros.csv',false)
+          .then( creado =>this.escribirEnArchivo(text))
+          .catch(err=>{
+            console.log('No se pudo crear el archivo',err);
+          })
+      });
+  }
+  async escribirEnArchivo(text:string){
+    await this.file.writeExistingFile(this.file.dataDirectory,'registro.csv',text );
+    console.log(this.file.dataDirectory+'registro.csv');
   }
 }

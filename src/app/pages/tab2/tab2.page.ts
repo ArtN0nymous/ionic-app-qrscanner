@@ -20,7 +20,7 @@ export class Tab2Page {
     });
   }
   sendEmail(){
-    console.log('Send email');
+    this.dataLocal.enviarCorreo();
   }
   abrir(scan:any){
     this.dataLocal.abrir(scan);
