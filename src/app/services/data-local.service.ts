@@ -1,16 +1,24 @@
 import { Injectable } from '@angular/core';
-import { NavController, ToastController } from '@ionic/angular';
+import { ModalController, NavController, ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage-angular';
 import { Registro } from '../models/registro.model';
 import {InAppBrowser} from '@awesome-cordova-plugins/in-app-browser'
-
+import { MapsPage } from '../pages/maps/maps.page';
+import { NavigationExtras, Router } from '@angular/router';
+import { File } from '@awesome-cordova-plugins/file/ngx';
 @Injectable({
   providedIn: 'root'
 })
 export class DataLocalService {
   guardado:Registro[]=[];
   _storage:Storage|null=null;
-  constructor(private storage:Storage,private toastCtrl:ToastController,private navCtrl:NavController) {
+  constructor(
+    private storage:Storage,
+    private toastCtrl:ToastController,
+    private navCtrl:NavController,
+    private modalCtrl:ModalController,
+    private router:Router
+  ) {
     this.init();
     this.cargarEscaneos();
   }
@@ -46,13 +54,43 @@ export class DataLocalService {
     this._storage = storage;
   }
   abrir(scan:Registro){
+    const navigationExatras:NavigationExtras={
+      queryParams:{
+        data:scan.text
+      }
+    }
     switch (scan.type) {
       case 'http':
         InAppBrowser.create(scan.text);
         break;
-    
+      case 'geo':
+        this.router.navigate([`/tabs/maps/`],navigationExatras);
+        break;
       default:
         break;
     }
+  }
+  async abrirModal(scan:Registro){
+    const modal = await this.modalCtrl.create({
+      component: MapsPage,
+      componentProps:{
+        scan,
+      }
+    });
+    modal.present();
+  }
+  enviarCorreo(){
+    const arrTemp=[];
+    const titulos = 'Tipo, Formato, Creado en, Texto\n';
+    arrTemp.push(titulos);
+    this.guardado.forEach(registro=>{
+      const linea = `${registro.type},${registro.format},${registro.created},${registro.text.replace(',',' ')}\n`;
+      arrTemp.push(linea);
+    });
+    //console.log(arrTemp.join(''));
+    this.crearArchivoCSV(arrTemp.join(''));
+  }
+  crearArchivoCSV(text:string){
+    
   }
 }
