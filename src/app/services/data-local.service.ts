@@ -6,6 +6,7 @@ import {InAppBrowser} from '@awesome-cordova-plugins/in-app-browser'
 import { MapsPage } from '../pages/maps/maps.page';
 import { NavigationExtras, Router } from '@angular/router';
 import { File } from '@awesome-cordova-plugins/file/ngx';
+import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
 @Injectable({
   providedIn: 'root'
 })
@@ -18,7 +19,8 @@ export class DataLocalService {
     private navCtrl:NavController,
     private modalCtrl:ModalController,
     private router:Router,
-    private file:File
+    private file:File,
+    private emailComposer:EmailComposer
   ) {
     this.init();
     this.cargarEscaneos();
@@ -106,6 +108,18 @@ export class DataLocalService {
   }
   async escribirEnArchivo(text:string){
     await this.file.writeExistingFile(this.file.dataDirectory,'registro.csv',text );
-    console.log(this.file.dataDirectory+'registro.csv');
+    const archivo=  this.file.dataDirectory+'registro.csv';
+    const email={
+      to:'',
+      //cc: '',
+      //bcc:['email@ejemplo.com','email2@ejemplo.com'],
+      attachments:[
+        archivo
+      ],
+      subject: 'COM.RAMSUS.QRSCANNER',
+      body: 'Send regristro',
+      //isHTML:true
+    };
+    this.emailComposer.open(email);
   }
 }
