@@ -25,5 +25,7 @@ export class Tab2Page {
   abrir(scan:any){
     this.dataLocal.abrir(scan);
   }
-
+  compartir(){
+    alert('Compártir');
+  }
 }

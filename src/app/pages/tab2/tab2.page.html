@@ -13,12 +13,21 @@
 
 <ion-content [fullscreen]="true">
   <ion-list>
-    <ion-item detail *ngFor="let scan of escaneos" (click)="abrir(scan)">
+    <ion-item detail *ngFor="let scan of escaneos" (click)="abrir(scan)" id="click-trigger">
       <ion-icon slot="start" [name]="scan.icon"></ion-icon>
         <ion-label>
           <h2>{{scan.text}}</h2>
           <p>{{scan.created|date:'medium'}}</p>
         </ion-label>
     </ion-item>
+    <ion-popover trigger="click-trigger" triggerAction="context-menu" mode="ios" [dismissOnSelect]="true">
+      <ng-template>
+        <ion-content>
+          <ion-list>
+            <ion-item [button]="true" [detail]="false">Compartir</ion-item>
+          </ion-list>
+        </ion-content>
+      </ng-template>
+    </ion-popover>
   </ion-list>
 </ion-content>

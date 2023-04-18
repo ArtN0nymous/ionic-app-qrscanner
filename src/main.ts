@@ -6,6 +6,7 @@ import { IonicStorageModule } from '@ionic/storage-angular';
 import { File } from '@awesome-cordova-plugins/file/ngx';
 import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
 
+
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
