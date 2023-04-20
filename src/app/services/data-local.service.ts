@@ -94,12 +94,12 @@ export class DataLocalService {
     this.crearArchivoCSV(arrTemp.join(''));
   }
   crearArchivoCSV(text:string){
-    this.file.checkFile(this.file.dataDirectory,'registros.csv')
+    this.file.checkFile(this.file.dataDirectory,'qrscanner.csv')
       .then(existe=>{
         console.log('existe archivo',existe);
         return this.escribirEnArchivo(text);
       }).catch(err=>{
-        this.file.createFile(this.file.dataDirectory,'registros.csv',false)
+        this.file.createFile(this.file.dataDirectory,'qrscanner.csv',false)
           .then( creado =>this.escribirEnArchivo(text))
           .catch(err=>{
             console.log('No se pudo crear el archivo',err);
@@ -107,8 +107,8 @@ export class DataLocalService {
       });
   }
   async escribirEnArchivo(text:string){
-    await this.file.writeExistingFile(this.file.dataDirectory,'registro.csv',text );
-    const archivo=  this.file.dataDirectory+'registro.csv';
+    await this.file.writeExistingFile(this.file.dataDirectory,'qrscanner.csv',text );
+    const archivo=  this.file.dataDirectory+'qrscanner.csv';
     const email={
       to:'',
       //cc: '',

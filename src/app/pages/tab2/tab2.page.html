@@ -13,21 +13,34 @@
 
 <ion-content [fullscreen]="true">
   <ion-list>
-    <ion-item detail *ngFor="let scan of escaneos" (click)="abrir(scan)" id="click-trigger">
+    <ion-item detail *ngFor="let scan of escaneos; let i = index" (click)="abrir(scan)" [id]="i">
       <ion-icon slot="start" [name]="scan.icon"></ion-icon>
         <ion-label>
           <h2>{{scan.text}}</h2>
           <p>{{scan.created|date:'medium'}}</p>
         </ion-label>
+        <ion-popover [trigger]="i" triggerAction="context-menu" mode="ios" [dismissOnSelect]="true">
+          <ng-template>
+            <ion-content>
+              <ion-list>
+                <ion-item [button]="true" [detail]="false" (click)="compartir(scan)">Compartir
+                  <ion-icon slot="end" name="share" color="primary"></ion-icon>
+                </ion-item>
+                <ion-item [button]="true" [detail]="false" (click)="generarqr(scan)">Generar QR
+                  <ion-icon slot="end" name="barcode" color="warning"></ion-icon>
+                </ion-item>
+              </ion-list>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
     </ion-item>
-    <ion-popover trigger="click-trigger" triggerAction="context-menu" mode="ios" [dismissOnSelect]="true">
-      <ng-template>
-        <ion-content>
-          <ion-list>
-            <ion-item [button]="true" [detail]="false">Compartir</ion-item>
-          </ion-list>
-        </ion-content>
-      </ng-template>
-    </ion-popover>
   </ion-list>
+  <ion-grid fixed *ngIf="displayQrCode()" class="qr">
+    <ion-row>
+      <ion-col size="12" class="ion-text-center">
+        <img [src]="generated" (click)="onClick()" width="300">
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <canvas id="canvas"></canvas>
 </ion-content>
