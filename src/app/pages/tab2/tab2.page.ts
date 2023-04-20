@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule, ToastController, AlertController } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { DataLocalService } from '../../services/data-local.service';
 import { Registro } from '../../models/registro.model';
@@ -18,7 +18,7 @@ export class Tab2Page {
   escaneos:Registro[]=[];
   generated!:string;
   canva = document.getElementById('canvas')as HTMLCanvasElement;;
-  constructor(private dataLocal:DataLocalService, private socialSharing:SocialSharing,private toast:ToastController) {
+  constructor(private dataLocal:DataLocalService, private socialSharing:SocialSharing,private toast:ToastController,private alertController:AlertController) {
     dataLocal.cargarEscaneos().then((result)=>{
       this.escaneos=result;
     });
@@ -37,21 +37,23 @@ export class Tab2Page {
       scan.text
     );
   }
-  async generarqr(scan:any) {
+  async generarqr(text:string) {
     let path= '';
-    toDataURL(this.canva,scan.text,{type:'image/jpeg'}, function (err, url) {
+    toDataURL(this.canva,text,{type:'image/jpeg'}, function (err, url) {
       path=url;
     });
-    this.generated=path;
-    const toast = await this.toast.create({
-      message: 'Toca para cerrar !',
-      duration: 3000,
-    });
-
-    await toast.present();
-
-    const { data } = await toast.onDidDismiss();
-    console.log(data);
+    if(path!==undefined){
+      this.generated=path;
+      const toast = await this.toast.create({
+        message: 'Toca para cerrar !',
+        duration: 3000,
+      });
+  
+      await toast.present();
+  
+      const { data } = await toast.onDidDismiss();
+    }
+    //console.log(data);
     /*this.socialSharing.share(
       'base64',
       'base64',
@@ -64,5 +66,27 @@ export class Tab2Page {
   }
   onClick(){
     this.generated='';
+  }
+  async addQr() {
+    const alert = await this.alertController.create({
+      header: 'Genera un QR.',
+      translucent:false,
+      mode:'ios',
+      buttons: [{
+          text: 'Generar !',
+          role: 'confirm',
+          handler: (data) => {
+            this.generarqr(data.texto);
+          },
+      }],
+      inputs: [
+        {
+          name:'texto',
+          min:1,
+          placeholder: 'https://example.com/',
+        },
+      ],
+    });
+    await alert.present();
   }
 }
