@@ -1,19 +1,12 @@
 <ion-header [translucent]="true">
-  <ion-toolbar class="ion-no-border">
-    <ion-title>
-      Historial
-    </ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="sendEmail()">
-        <ion-icon slot="icon-only" name="send"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+  <ion-toolbar>
+    <ion-searchbar (ionInput)="buscar($event)" [debounce]="300" placeholder="Buscar..." class="ion-no-border" mode="ios" style="margin-top: 10px;"></ion-searchbar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-list>
-    <ion-item detail *ngFor="let scan of escaneos; let i = index" (click)="abrir(scan)" [id]="i">
+    <ion-item detail *ngFor="let scan of escaneos|filtro:textoBuscar:'text'; let i = index" (click)="abrir(scan)" [id]="i">
       <ion-icon slot="start" [name]="scan.icon"></ion-icon>
         <ion-label>
           <h2>{{scan.text}}</h2>
@@ -44,8 +37,16 @@
   </ion-grid>
   <canvas id="canvas"></canvas>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button color="success" (click)="addQr()">
-      <ion-icon name="add"></ion-icon>
+    <ion-fab-button color="success">
+      <ion-icon name="grid"></ion-icon>
     </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button color="success" (click)="addQr()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button color="primary">
+        <ion-icon name="send" (click)="sendEmail()"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
   </ion-fab>
 </ion-content>

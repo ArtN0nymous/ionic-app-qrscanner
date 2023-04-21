@@ -6,17 +6,21 @@ import { Registro } from '../../models/registro.model';
 import { CommonModule } from '@angular/common';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import {toDataURL} from 'qrcode';
+import { PipesModule } from '../../pipes/pipes.module';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
   standalone: true,
-  imports: [IonicModule, ExploreContainerComponent,CommonModule]
+  imports: [IonicModule, ExploreContainerComponent,CommonModule,PipesModule,
+    FormsModule]
 })
 export class Tab2Page {
   escaneos:Registro[]=[];
   generated!:string;
+  textoBuscar:string='';
   canva = document.getElementById('canvas')as HTMLCanvasElement;;
   constructor(private dataLocal:DataLocalService, private socialSharing:SocialSharing,private toast:ToastController,private alertController:AlertController) {
     dataLocal.cargarEscaneos().then((result)=>{
@@ -88,5 +92,8 @@ export class Tab2Page {
       ],
     });
     await alert.present();
+  }
+  buscar(ev:any){
+    this.textoBuscar=ev.detail.value;
   }
 }
