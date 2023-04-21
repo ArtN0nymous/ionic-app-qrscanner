@@ -8,6 +8,7 @@ import { NavigationExtras, Router } from '@angular/router';
 import { File } from '@awesome-cordova-plugins/file/ngx';
 import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+declare var WifiWizard2: any;
 @Injectable({
   providedIn: 'root'
 })
@@ -74,6 +75,12 @@ export class DataLocalService {
       case 'gmap':
         InAppBrowser.create(scan.text);
         break
+      case 'wifi':
+        this.getNetworks(scan.text);
+        break;
+      case 'menu':
+        InAppBrowser.create(scan.text);
+        break;
       default:
         this.compartir(scan);
         break;
@@ -133,11 +140,56 @@ export class DataLocalService {
     this.emailComposer.open(email);
   }
   compartir(scan:any){
-    this.socialSharing.share(
-      scan.type,
-      scan.format,
-      undefined,
-      scan.text
-    );
+    let text = scan.text;
+    if(scan.type==='wifi'){
+      let SSID,password,type;
+      SSID=text.split('S:');
+      SSID= SSID[1].split(';');
+      SSID=SSID[0];
+
+      password=text.split('P:');
+      password=password[1].split(';');
+      password=password[0];
+
+      type=text.split('T:');
+      type=type[1].split(';');
+      type=type[0];
+      text = 'Red: '+SSID+' Contraseña:'+password;
+      this.socialSharing.share(
+        undefined,
+        undefined,
+        undefined,
+        text
+      );
+    }else{
+      this.socialSharing.share(
+        scan.type,
+        scan.format,
+        undefined,
+        scan.text
+      );
+    }
+  }
+  async getNetworks(text:string) {
+    let SSID,password,type;
+    let isHiddenSSID=false;
+    SSID=text.split('S:');
+    SSID= SSID[1].split(';');
+    SSID=SSID[0];
+
+    password=text.split('P:');
+    password=password[1].split(';');
+    password=password[0];
+
+    type=text.split('T:');
+    type=type[1].split(';');
+    type=type[0];
+    //console.log('RED: '+SSID,'PASS: '+password,'TYPE: '+type);
+    try {
+      await WifiWizard2.timeout(6000);
+      await WifiWizard2.suggestConnection(SSID, password, type, isHiddenSSID);
+    } catch (error) {
+      alert(error);
+    }
   }
 }

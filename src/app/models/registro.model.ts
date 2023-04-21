@@ -13,29 +13,34 @@ export  class Registro{
         this.getType();
     }
     private getType(){
-        if(this.text.search('goo.gl/maps')!==-1){
-            this.type='gmap';
-            this.icon='map';
+        if(this.text.search('menu')!==-1){
+            this.type='menu';
+            this.icon='fast-food';
         }else{
-            const tipo = this.text.substring(0,4);
-            console.log('TIPO',tipo);
-            switch (tipo) {
-                case 'http':
-                    this.type='http';
-                    this.icon='globe';
-                    break;
-                case 'geo:':
-                    this.type='geo';
-                    this.icon='pin';
-                    break;
-                case 'WIFI':
-                    this.type='wifi';
-                    this.icon='wifi';
-                    break;
-                default:
-                    this.type='undefined'
-                    this.icon='document';
-                    break;
+            if(this.text.search('goo.gl/maps')!==-1){
+                this.type='gmap';
+                this.icon='logo-google';
+            }else{
+                const tipo = this.text.substring(0,4);
+                console.log('TIPO',tipo);
+                switch (tipo) {
+                    case 'http':
+                        this.type='http';
+                        this.icon='globe';
+                        break;
+                    case 'geo:':
+                        this.type='geo';
+                        this.icon='pin';
+                        break;
+                    case 'WIFI':
+                        this.type='wifi';
+                        this.icon='wifi';
+                        break;
+                    default:
+                        this.type='undefined'
+                        this.icon='document';
+                        break;
+                }
             }
         }
     }

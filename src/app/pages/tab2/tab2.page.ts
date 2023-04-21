@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import {toDataURL} from 'qrcode';
 import { PipesModule } from '../../pipes/pipes.module';
 import { FormsModule } from '@angular/forms';
+import { Router, NavigationExtras } from '@angular/router';
 
 @Component({
   selector: 'app-tab2',
@@ -21,7 +22,7 @@ export class Tab2Page {
   generated!:string;
   textoBuscar:string='';
   canva = document.getElementById('canvas')as HTMLCanvasElement;;
-  constructor(private dataLocal:DataLocalService,private toast:ToastController,private alertController:AlertController) {
+  constructor(private dataLocal:DataLocalService,private toast:ToastController,private alertController:AlertController,private router:Router) {
     dataLocal.cargarEscaneos().then((result)=>{
       this.escaneos=result;
     });
@@ -61,6 +62,41 @@ export class Tab2Page {
   }
   compartir(scan:any){
     this.dataLocal.compartir(scan);
+  }
+  async abrirMapa(){
+    const alert = await this.alertController.create({
+      header: 'Ubicar coordenadas.',
+      translucent:false,
+      mode:'ios',
+      buttons: [{
+          text: 'Encontrar !',
+          role: 'confirm',
+          handler: (data) => {
+            this.Mapa('geo:'+data.lat+','+data.long);
+          },
+      }],
+      inputs: [
+        {
+          name:'lat',
+          type:'number',
+          placeholder: 'lat 40.7135',
+        },
+        {
+          name:'long',
+          type:'number',
+          placeholder:'long -74.0066',
+        }
+      ],
+    });
+    await alert.present();
+  }
+  Mapa(text:string){
+    const navigationExatras:NavigationExtras={
+      queryParams:{
+        data:text
+      }
+    }
+    this.router.navigate([`/tabs/maps/`],navigationExatras);
   }
   onClick(){
     this.generated='';
