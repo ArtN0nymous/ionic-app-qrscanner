@@ -4,7 +4,6 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
 import { DataLocalService } from '../../services/data-local.service';
 import { Registro } from '../../models/registro.model';
 import { CommonModule } from '@angular/common';
-import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import {toDataURL} from 'qrcode';
 import { PipesModule } from '../../pipes/pipes.module';
 import { FormsModule } from '@angular/forms';
@@ -22,7 +21,7 @@ export class Tab2Page {
   generated!:string;
   textoBuscar:string='';
   canva = document.getElementById('canvas')as HTMLCanvasElement;;
-  constructor(private dataLocal:DataLocalService, private socialSharing:SocialSharing,private toast:ToastController,private alertController:AlertController) {
+  constructor(private dataLocal:DataLocalService,private toast:ToastController,private alertController:AlertController) {
     dataLocal.cargarEscaneos().then((result)=>{
       this.escaneos=result;
     });
@@ -32,14 +31,6 @@ export class Tab2Page {
   }
   abrir(scan:any){
     this.dataLocal.abrir(scan);
-  }
-  compartir(scan:any){
-    this.socialSharing.share(
-      scan.type,
-      scan.format,
-      undefined,
-      scan.text
-    );
   }
   async generarqr(text:string) {
     let path= '';
@@ -67,6 +58,9 @@ export class Tab2Page {
   }
   displayQrCode() {
     return this.generated !== ''?true:false;
+  }
+  compartir(scan:any){
+    this.dataLocal.compartir(scan);
   }
   onClick(){
     this.generated='';

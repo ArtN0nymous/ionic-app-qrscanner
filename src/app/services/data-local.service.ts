@@ -7,6 +7,7 @@ import { MapsPage } from '../pages/maps/maps.page';
 import { NavigationExtras, Router } from '@angular/router';
 import { File } from '@awesome-cordova-plugins/file/ngx';
 import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 @Injectable({
   providedIn: 'root'
 })
@@ -20,7 +21,8 @@ export class DataLocalService {
     private modalCtrl:ModalController,
     private router:Router,
     private file:File,
-    private emailComposer:EmailComposer
+    private emailComposer:EmailComposer,
+    private socialSharing:SocialSharing
   ) {
     this.init();
     this.cargarEscaneos();
@@ -69,7 +71,11 @@ export class DataLocalService {
       case 'geo':
         this.router.navigate([`/tabs/maps/`],navigationExatras);
         break;
+      case 'gmap':
+        InAppBrowser.create(scan.text);
+        break
       default:
+        this.compartir(scan);
         break;
     }
   }
@@ -86,12 +92,16 @@ export class DataLocalService {
     const arrTemp=[];
     const titulos = 'Tipo, Formato, Creado en, Texto\n';
     arrTemp.push(titulos);
-    this.guardado.forEach(registro=>{
-      const linea = `${registro.type},${registro.format},${registro.created},${registro.text.replace(',',' ')}\n`;
-      arrTemp.push(linea);
-    });
-    //console.log(arrTemp.join(''));
-    this.crearArchivoCSV(arrTemp.join(''));
+    if(this.guardado.length>0){
+      this.guardado.forEach(registro=>{
+        const linea = `${registro.type},${registro.format},${registro.created},${registro.text.replace(',',' ')}\n`;
+        arrTemp.push(linea);
+      });
+      //console.log(arrTemp.join(''));
+      this.crearArchivoCSV(arrTemp.join(''));
+    }else{
+      alert('Si quieres compartir el historial de tu scanner en formato CSV, primero debes escanear algo.');
+    }
   }
   crearArchivoCSV(text:string){
     this.file.checkFile(this.file.dataDirectory,'qrscanner.csv')
@@ -116,10 +126,18 @@ export class DataLocalService {
       attachments:[
         archivo
       ],
-      subject: 'COM.RAMSUS.QRSCANNER',
+      subject: 'COM.RAMSUS.EASYQRSCANNER',
       body: 'Send regristro',
       //isHTML:true
     };
     this.emailComposer.open(email);
+  }
+  compartir(scan:any){
+    this.socialSharing.share(
+      scan.type,
+      scan.format,
+      undefined,
+      scan.text
+    );
   }
 }
