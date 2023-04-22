@@ -134,7 +134,7 @@ export class DataLocalService {
         archivo
       ],
       subject: 'COM.RAMSUS.EASYQRSCANNER',
-      body: 'Send regristro',
+      body: 'Historial de Easy QRScanner.',
       //isHTML:true
     };
     this.emailComposer.open(email);
