@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Easy QRScanner</string>
-    <string name="title_activity_main">Easy QRScanner</string>
-    <string name="package_name">com.ramsus.easyqrscanner</string>
-    <string name="custom_url_scheme">com.ramsus.easyqrscanner</string>
+    <string name="app_name">ionic-qrscanner-v2</string>
+    <string name="title_activity_main">ionic-qrscanner-v2</string>
+    <string name="package_name">com.ramsus.qrscanner.v2</string>
+    <string name="custom_url_scheme">com.ramsus.qrscanner.v2</string>
 </resources>

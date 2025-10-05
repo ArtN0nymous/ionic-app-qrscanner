@@ -1,195 +1,272 @@
 import { Injectable } from '@angular/core';
-import { ModalController, NavController, ToastController } from '@ionic/angular';
-import { Storage } from '@ionic/storage-angular';
-import { Registro } from '../models/registro.model';
-import {InAppBrowser} from '@awesome-cordova-plugins/in-app-browser'
-import { MapsPage } from '../pages/maps/maps.page';
-import { NavigationExtras, Router } from '@angular/router';
-import { File } from '@awesome-cordova-plugins/file/ngx';
-import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
-import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
-declare var WifiWizard2: any;
+import { ToastController } from '@ionic/angular';
+import { Record } from '../models/record.model';
+import { Browser } from '@capacitor/browser';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Router } from '@angular/router';
+
 @Injectable({
   providedIn: 'root'
 })
 export class DataLocalService {
-  guardado:Registro[]=[];
-  _storage:Storage|null=null;
+  savedRecords: Record[] = [];
+
   constructor(
-    private storage:Storage,
-    private toastCtrl:ToastController,
-    private navCtrl:NavController,
-    private modalCtrl:ModalController,
-    private router:Router,
-    private file:File,
-    private emailComposer:EmailComposer,
-    private socialSharing:SocialSharing
-  ) {
-    this.init();
-    this.cargarEscaneos();
-  }
-  guardarScaneo(format:string,text:string){
-    const nuevoScaneo = new Registro(format,text);
-    const exist= this.guardado.find(scan=>scan.text===text);
-    if(!exist){
-      this.guardado.unshift(nuevoScaneo);
-      console.log('GUARDADO',this.guardado);
-      this.storage.set('escaneos',this.guardado);
-      this.mostrarMensaje();
-      this.navCtrl.navigateForward('/tabs/tab2');
-      this.abrir(nuevoScaneo);
-    }else{
-      alert('Este escaneo ya existe');
+    private toastCtrl: ToastController,
+    private router: Router
+  ) {}
+
+  saveScan(format: string, text: string): boolean {
+    const newScan = new Record(format, text);
+    const exist = this.savedRecords.find(scan => scan.text === text);
+    
+    if (!exist) {
+      this.savedRecords.unshift(newScan);
+      localStorage.setItem('scans', JSON.stringify(this.savedRecords));
+      this.showMessage();
+      return true;
+    } else {
+      alert('This scan already exists');
+      return false;
     }
   }
-  async mostrarMensaje(){
-    const toast= await this.toastCtrl.create({
-      message:'Escaneo guardado',
-      duration:1500
+
+  async showMessage(customMessage?: string): Promise<void> {
+    const message = customMessage || 'Scan saved';
+    const toast = await this.toastCtrl.create({
+      message: message,
+      duration: 1500
     });
     toast.present();
   }
-  async cargarEscaneos(){
-    const escaneos = await this.storage.get('escaneos');
-    this.guardado= escaneos||[];
-    console.log('CARGADOS',escaneos);
-    return escaneos;
-  }
-  async init(){
-    const storage = await this.storage.create();
-    this._storage = storage;
-  }
-  abrir(scan:Registro){
-    const navigationExatras:NavigationExtras={
-      queryParams:{
-        data:scan.text
-      }
+
+  async loadScans(): Promise<Record[]> {
+    if (this.savedRecords.length === 0) {
+      const scans = localStorage.getItem('scans');
+      this.savedRecords = scans ? JSON.parse(scans) : [];
     }
+    return this.savedRecords;
+  }
+
+  open(scan: Record): void {
+    const navigationExtras = {
+      queryParams: {
+        data: scan.text
+      }
+    };
+
     switch (scan.type) {
       case 'http':
-        InAppBrowser.create(scan.text);
+        Browser.open({ url: scan.text });
         break;
       case 'geo':
-        this.router.navigate([`/tabs/maps/`],navigationExatras);
+        const coords = scan.text.replace('geo:', '').split(',');
+        if (coords.length >= 2) {
+          const lat = coords[0];
+          const lng = coords[1];
+          const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+          Browser.open({ url: mapsUrl });
+        }
         break;
       case 'gmap':
-        InAppBrowser.create(scan.text);
-        break
+        Browser.open({ url: scan.text });
+        break;
       case 'wifi':
         this.getNetworks(scan.text);
         break;
       case 'menu':
-        InAppBrowser.create(scan.text);
+        Browser.open({ url: scan.text });
         break;
       default:
-        this.compartir(scan);
+        this.share(scan);
         break;
     }
   }
-  async abrirModal(scan:Registro){
-    const modal = await this.modalCtrl.create({
-      component: MapsPage,
-      componentProps:{
-        scan,
+
+  async openModal(scan: Record): Promise<void> {
+    console.log('Open modal for:', scan);
+  }
+
+  async sendEmail(): Promise<void> {
+    const arrTemp: string[] = [];
+    const titles = 'Type,Format,Created,Text\n';
+    arrTemp.push(titles);
+    
+    if (this.savedRecords.length > 0) {
+      this.savedRecords.forEach(record => {
+        const type = this.escapeCsvValue(record.type);
+        const format = this.escapeCsvValue(record.format);
+        const created = this.escapeCsvValue(record.created.toString());
+        const text = this.escapeCsvValue(record.text);
+        
+        const line = `${type},${format},${created},${text}\n`;
+        arrTemp.push(line);
+      });
+      
+      const csvContent = arrTemp.join('');
+      
+      try {
+        await this.createCSVFile(csvContent);
+      } catch (error: any) {
+        if (error && error.message && 
+            (error.message.includes('cancelled') || 
+             error.message.includes('canceled') ||
+             error.message.includes('User cancelled') ||
+             error.message.includes('User canceled'))) {
+          return;
+        }
+        
+        this.downloadCSV(csvContent);
       }
-    });
-    modal.present();
-  }
-  enviarCorreo(){
-    const arrTemp=[];
-    const titulos = 'Tipo, Formato, Creado en, Texto\n';
-    arrTemp.push(titulos);
-    if(this.guardado.length>0){
-      this.guardado.forEach(registro=>{
-        const linea = `${registro.type},${registro.format},${registro.created},${registro.text.replace(',',' ')}\n`;
-        arrTemp.push(linea);
-      });
-      //console.log(arrTemp.join(''));
-      this.crearArchivoCSV(arrTemp.join(''));
-    }else{
-      alert('Si quieres compartir el historial de tu scanner en formato CSV, primero debes escanear algo.');
+    } else {
+      alert('If you want to share your scanner history in CSV format, you must first scan something.');
     }
   }
-  crearArchivoCSV(text:string){
-    this.file.checkFile(this.file.dataDirectory,'qrscanner.csv')
-      .then(existe=>{
-        console.log('existe archivo',existe);
-        return this.escribirEnArchivo(text);
-      }).catch(err=>{
-        this.file.createFile(this.file.dataDirectory,'qrscanner.csv',false)
-          .then( creado =>this.escribirEnArchivo(text))
-          .catch(err=>{
-            console.log('No se pudo crear el archivo',err);
-          })
-      });
-  }
-  async escribirEnArchivo(text:string){
-    await this.file.writeExistingFile(this.file.dataDirectory,'qrscanner.csv',text );
-    const archivo=  this.file.dataDirectory+'qrscanner.csv';
-    const email={
-      to:'',
-      //cc: '',
-      //bcc:['email@ejemplo.com','email2@ejemplo.com'],
-      attachments:[
-        archivo
-      ],
-      subject: 'COM.RAMSUS.EASYQRSCANNER',
-      body: 'Historial de Easy QRScanner.',
-      //isHTML:true
-    };
-    this.emailComposer.open(email);
-  }
-  compartir(scan:any){
-    let text = scan.text;
-    if(scan.type==='wifi'){
-      let SSID,password,type;
-      SSID=text.split('S:');
-      SSID= SSID[1].split(';');
-      SSID=SSID[0];
 
-      password=text.split('P:');
-      password=password[1].split(';');
-      password=password[0];
-
-      type=text.split('T:');
-      type=type[1].split(';');
-      type=type[0];
-      text = 'Red: '+SSID+' Contraseña:'+password;
-      this.socialSharing.share(
-        undefined,
-        undefined,
-        undefined,
-        text
-      );
-    }else{
-      this.socialSharing.share(
-        scan.type,
-        scan.format,
-        undefined,
-        scan.text
-      );
-    }
-  }
-  async getNetworks(text:string) {
-    let SSID,password,type;
-    let isHiddenSSID=false;
-    SSID=text.split('S:');
-    SSID= SSID[1].split(';');
-    SSID=SSID[0];
-
-    password=text.split('P:');
-    password=password[1].split(';');
-    password=password[0];
-
-    type=text.split('T:');
-    type=type[1].split(';');
-    type=type[0];
-    //console.log('RED: '+SSID,'PASS: '+password,'TYPE: '+type);
+  private downloadCSV(csvContent: string): void {
     try {
-      await WifiWizard2.timeout(6000);
-      await WifiWizard2.suggestConnection(SSID, password, type, isHiddenSSID);
+      const fileName = `qrscanner-${new Date().toISOString().split('T')[0]}.csv`;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', fileName);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        this.showMessage('CSV file downloaded successfully!');
+      } else {
+        alert('CSV content ready for copy:\n\n' + csvContent.substring(0, 500) + '...');
+      }
     } catch (error) {
-      alert(error);
+      alert('Error downloading CSV file: ' + error);
+    }
+  }
+
+  private escapeCsvValue(value: string): string {
+    if (value.includes(',') || value.includes('\n') || value.includes('"')) {
+      return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  }
+
+  async createCSVFile(text: string): Promise<void> {
+    try {
+      const fileName = `qrscanner-${new Date().toISOString().split('T')[0]}.csv`;
+      const filePath = fileName;
+      
+      let directory = Directory.Documents;
+      let fileUri;
+      
+      try {
+        await Filesystem.writeFile({
+          path: filePath,
+          data: text,
+          directory: directory,
+          encoding: Encoding.UTF8,
+        });
+
+        fileUri = await Filesystem.getUri({
+          directory: directory,
+          path: fileName
+        });
+      } catch (docError) {
+        directory = Directory.Cache;
+        await Filesystem.writeFile({
+          path: filePath,
+          data: text,
+          directory: directory,
+          encoding: Encoding.UTF8,
+        });
+
+        fileUri = await Filesystem.getUri({
+          directory: directory,
+          path: fileName
+        });
+      }
+
+      try {
+        await Share.share({
+          title: 'QR Scanner History',
+          text: 'QR Scanner history export',
+          url: fileUri.uri,
+          dialogTitle: 'Share QR Scanner History'
+        });
+        
+        this.showMessage('CSV file ready to share!');
+      } catch (shareError: any) {
+        if (shareError && shareError.message && 
+            (shareError.message.includes('cancelled') || 
+             shareError.message.includes('canceled') ||
+             shareError.message.includes('User cancelled') ||
+             shareError.message.includes('User canceled'))) {
+          return;
+        }
+        throw shareError;
+      }
+
+    } catch (error) {
+      alert('Error creating CSV file: ' + error);
+    }
+  }
+
+  async share(scan: any): Promise<void> {
+    let text = scan.text;
+    
+    if (scan.type === 'wifi') {
+      let SSID, password, type;
+      SSID = text.split('S:');
+      SSID = SSID[1].split(';');
+      SSID = SSID[0];
+
+      password = text.split('P:');
+      password = password[1].split(';');
+      password = password[0];
+
+      type = text.split('T:');
+      type = type[1].split(';');
+      type = type[0];
+      
+      text = 'Network: ' + SSID + ' Password:' + password;
+      
+      await Share.share({
+        title: scan.type,
+        text: text
+      });
+    } else {
+      await Share.share({
+        title: scan.type,
+        text: scan.text
+      });
+    }
+  }
+
+  async getNetworks(text: string): Promise<void> {
+    let SSID, password, type;
+    let isHiddenSSID = false;
+    
+    SSID = text.split('S:');
+    SSID = SSID[1].split(';');
+    SSID = SSID[0];
+
+    password = text.split('P:');
+    password = password[1].split(';');
+    password = password[0];
+
+    type = text.split('T:');
+    type = type[1].split(';');
+    type = type[0];
+
+    try {
+      alert(`WiFi connection: ${SSID} - Password: ${password}`);
+    } catch (error) {
+      alert('Error connecting to WiFi network: ' + error);
     }
   }
 }

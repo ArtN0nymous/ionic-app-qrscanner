@@ -1,0 +1,138 @@
+/* History page styles with icon theme */
+.qr {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(74, 144, 226, 0.15);
+    border: 2px solid #E8F4FD;
+}
+
+/* Enhanced list items */
+ion-list {
+    background: transparent;
+    padding: 0 16px;
+}
+
+ion-item {
+    --background: rgba(255, 255, 255, 0.9);
+    --color: var(--ion-color-dark);
+    --border-color: #E8F4FD;
+    --inner-border-width: 0 0 1px 0;
+    --min-height: 70px;
+    --border-radius: 12px;
+    margin-bottom: 8px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.08);
+    transition: all 0.3s ease;
+}
+
+ion-item:hover {
+    --background: rgba(240, 248, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(74, 144, 226, 0.15);
+}
+
+/* Item icons with theme colors */
+ion-item ion-icon {
+    color: var(--ion-color-primary);
+    font-size: 24px;
+}
+
+/* Item labels */
+ion-item ion-label h2 {
+    color: var(--ion-color-dark);
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+ion-item ion-label p {
+    color: var(--ion-color-medium);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* Enhanced popover */
+ion-popover {
+    --background: rgba(255, 255, 255, 0.95);
+    --color: var(--ion-color-dark);
+    --border-radius: 16px;
+    --box-shadow: 0 8px 32px rgba(74, 144, 226, 0.2);
+    backdrop-filter: blur(20px);
+}
+
+ion-popover ion-content {
+    --background: transparent;
+}
+
+ion-popover ion-item {
+    --background: transparent;
+    --color: var(--ion-color-dark);
+    --border-color: transparent;
+    --inner-border-width: 0;
+    --min-height: 50px;
+    margin: 4px 0;
+}
+
+ion-popover ion-item:hover {
+    --background: rgba(74, 144, 226, 0.1);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Enhanced fab button */
+ion-fab {
+    z-index: 1000;
+}
+
+ion-fab-button {
+    --background: var(--fab-gradient);
+    --background-hover: linear-gradient(135deg, #5c9be5 0%, #36bab3 100%);
+    --background-activated: linear-gradient(135deg, #417fc7 0%, #1c9c96 100%);
+    --color: #ffffff;
+    --box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+    --border-radius: 16px;
+}
+
+ion-fab-list ion-fab-button {
+    --background: var(--ion-color-primary);
+    --background-hover: var(--ion-color-primary-shade);
+    --background-activated: var(--ion-color-primary-shade);
+    --color: #ffffff;
+    --box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    ion-item {
+        --background: rgba(44, 62, 80, 0.8);
+        --color: #ffffff;
+        --border-color: #404040;
+    }
+    
+    ion-item:hover {
+        --background: rgba(74, 144, 226, 0.2);
+    }
+    
+    ion-item ion-label h2 {
+        color: #ffffff;
+    }
+    
+    ion-item ion-label p {
+        color: #9E9E9E;
+    }
+    
+    ion-popover {
+        --background: rgba(44, 62, 80, 0.95);
+        --color: #ffffff;
+    }
+    
+    .qr {
+        background: rgba(44, 62, 80, 0.9);
+        border-color: #404040;
+    }
+}

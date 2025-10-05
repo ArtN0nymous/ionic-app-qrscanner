@@ -1,10 +1,15 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.ramsus.easyqrscanner',
-  appName: 'Easy QRScanner',
+  appName: 'Easy QR Scanner',
   webDir: 'www',
-  bundledWebRuntime: false
+  plugins: {
+    Filesystem: {
+      iosIsDocumentPickerEnabled: true,
+      androidLegacyExternalStorage: false
+    }
+  }
 };
 
 export default config;

@@ -16,7 +16,7 @@
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
-@import '@ionic/angular/css/display.css';
+@import "@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
@@ -25,7 +25,126 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import '@ionic/angular/css/palettes/dark.system.css';
+
+
+/* Scanner styles */
 body.scanner-active {
     --background: transparent;
     --ion-background-color: transparent;
-  }
+}
+
+/* Custom app styles based on icon theme */
+.app-gradient-bg {
+    background: linear-gradient(135deg, #4A90E2 0%, #20B2AA 100%);
+}
+
+.app-gradient-text {
+    background: linear-gradient(135deg, #4A90E2 0%, #20B2AA 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Enhanced fab button with gradient */
+ion-fab-button {
+    --background: var(--fab-gradient);
+    --background-hover: linear-gradient(135deg, #5c9be5 0%, #36bab3 100%);
+    --background-activated: linear-gradient(135deg, #417fc7 0%, #1c9c96 100%);
+    --color: #ffffff;
+    --box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);
+}
+
+/* Enhanced toolbar with subtle gradient */
+ion-toolbar {
+    --background: linear-gradient(90deg, #ffffff 0%, #F0F8FF 100%);
+    --color: var(--ion-color-dark);
+    --border-color: #E8F4FD;
+}
+
+/* Enhanced tab bar */
+ion-tab-bar {
+    --background: #ffffff;
+    --color: var(--ion-color-medium);
+    --color-selected: var(--ion-color-primary);
+    --border: 1px solid #E8F4FD;
+    box-shadow: 0 -2px 8px rgba(74, 144, 226, 0.1);
+}
+
+/* Enhanced search bar */
+ion-searchbar {
+    --background: #F0F8FF;
+    --color: var(--ion-color-dark);
+    --placeholder-color: var(--ion-color-medium);
+    --icon-color: var(--ion-color-primary);
+    --clear-button-color: var(--ion-color-medium);
+    --border-radius: 12px;
+}
+
+/* Enhanced items with subtle styling */
+ion-item {
+    --background: #ffffff;
+    --color: var(--ion-color-dark);
+    --border-color: #E8F4FD;
+    --inner-border-width: 0 0 1px 0;
+    --inner-padding-end: 16px;
+    --inner-padding-start: 16px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --min-height: 60px;
+}
+
+ion-item:hover {
+    --background: #F0F8FF;
+}
+
+/* Enhanced popover */
+ion-popover {
+    --background: #ffffff;
+    --color: var(--ion-color-dark);
+    --border-radius: 12px;
+    --box-shadow: 0 8px 32px rgba(74, 144, 226, 0.15);
+}
+
+/* Enhanced alert */
+ion-alert {
+    --background: #ffffff;
+    --color: var(--ion-color-dark);
+    --border-radius: 12px;
+    --box-shadow: 0 8px 32px rgba(74, 144, 226, 0.15);
+}
+
+/* Enhanced toast */
+ion-toast {
+    --background: var(--ion-color-dark);
+    --color: #ffffff;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 16px rgba(44, 62, 80, 0.3);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F0F8FF;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--ion-color-primary);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ion-color-primary-shade);
+}

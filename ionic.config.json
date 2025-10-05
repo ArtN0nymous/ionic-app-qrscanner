@@ -1,7 +1,7 @@
 {
-  "name": "Easy QRScanner",
+  "name": "ionic-qrscanner-v2",
   "integrations": {
     "capacitor": {}
   },
-  "type": "angular"
+  "type": "angular-standalone"
 }

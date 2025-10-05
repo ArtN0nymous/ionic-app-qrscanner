@@ -1,27 +1,50 @@
-import { enableProdMode, importProvidersFrom } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { RouteReuseStrategy, provideRouter } from '@angular/router';
-import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { IonicStorageModule } from '@ionic/storage-angular';
-import { File } from '@awesome-cordova-plugins/file/ngx';
-import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
-import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
+import { PLATFORM_ID } from '@angular/core';
+import { addIcons } from 'ionicons';
+import { 
+  barcode, 
+  stop, 
+  list, 
+  map, 
+  share, 
+  grid, 
+  add, 
+  globe, 
+  send,
+  fastFood,
+  logoGoogle,
+  pin,
+  wifi,
+  document
+} from 'ionicons/icons';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
-import { environment } from './environments/environment';
 
-if (environment.production) {
-  enableProdMode();
-}
+// Register the icons
+addIcons({
+  barcode,
+  stop,
+  list,
+  map,
+  share,
+  grid,
+  add,
+  globe,
+  send,
+  fastFood,
+  logoGoogle,
+  pin,
+  wifi,
+  document
+});
 
 bootstrapApplication(AppComponent, {
   providers: [
-    File,
-    EmailComposer,
-    SocialSharing,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    importProvidersFrom(IonicModule.forRoot({}),IonicStorageModule.forRoot()),
-    provideRouter(routes),
+    provideIonicAngular(),
+    provideRouter(routes, withPreloading(PreloadAllModules)),
   ],
 });
